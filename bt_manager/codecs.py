@@ -96,9 +96,12 @@ class SBCCodec:
 
         import sys
 
-        so_path = './librtpsbc.so'
         if platform.machine() == 'aarch64':
             so_path = './librtpsbc_aarch64.so'
+        elif platform.machine() == 'armv7l':
+            so_path = './librtpsbc_armv7l.so'
+        else:
+            raise Exception('Unsupported platform: {}'.format(platform.machine()))
 
         try:
             self.codec = ffi.dlopen(so_path)
