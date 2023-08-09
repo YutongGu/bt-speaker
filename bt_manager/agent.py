@@ -145,6 +145,11 @@ class BTAgent(dbus.service.Object):
         if (self.cb_notify_on_release):
             self.cb_notify_on_release(BTAgent.NOTIFY_ON_RELEASE)
 
+    @dbus.service.method("org.bluez.Agent1",
+                in_signature="o", out_signature="")
+    def RequestAuthorization(self, device):
+        return
+
     @dbus.service.method("org.bluez.Agent1", in_signature="os",
                          out_signature="")
     def AuthorizeService(self, device, uuid):
