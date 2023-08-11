@@ -148,7 +148,13 @@ class BTAgent(dbus.service.Object):
     @dbus.service.method("org.bluez.Agent1",
                 in_signature="o", out_signature="")
     def RequestAuthorization(self, device):
-        return
+        if (self.cb_notify_on_authorize):
+            if (not self.cb_notify_on_authorize(BTAgent.NOTIFY_ON_AUTHORIZE,
+                                                device,
+                                                None)):
+                raise BTRejectedException('Connection not authorized by user')
+        elif (not self.auto_authorize_connections):
+            raise BTRejectedException('Auto authorize is off')
 
     @dbus.service.method("org.bluez.Agent1", in_signature="os",
                          out_signature="")

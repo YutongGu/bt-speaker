@@ -112,7 +112,7 @@ class AutoAcceptSingleAudioAgent(BTAgent):
             self.adapter.set_property('Discoverable', True)
 
     def auto_accept_one(self, method, device, uuid):
-        if not BTUUID(uuid).uuid in self.allowed_uuids: return False
+        if uuid is not None and not BTUUID(uuid).uuid in self.allowed_uuids: return False
         if self.connected and self.connected != device:
             print("Rejecting device, because another one is already connected. connected_device=%s, device=%s" % (self.connected, device))
             return False
