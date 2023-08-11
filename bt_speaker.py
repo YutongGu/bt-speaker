@@ -218,5 +218,3 @@ if __name__ == '__main__':
         run()
     except KeyboardInterrupt:
         print('KeyboardInterrupt')
-    except Exception as e:
-        print(e.message)
