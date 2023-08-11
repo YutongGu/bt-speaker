@@ -100,6 +100,11 @@ class AutoAcceptSingleAudioAgent(BTAgent):
         self.track_callback = track_callback
         self.update_discoverable()
 
+    def shutdown(self):
+        if self.connected:
+            print("Gracefully shutting down bluetooth connection")
+            BTDevice(addr='org.bluez.Device1', dev_path=self.connected).disconnect()
+
     def update_discoverable(self):
         if not config.getboolean('bluez', 'discoverable'):
             return
@@ -196,6 +201,7 @@ def setup_bt():
     manager.request_default_agent(agent._path)
 
     startup()
+    return agent
 
 def run():
     # Initialize the DBus SystemBus
@@ -208,13 +214,14 @@ def run():
     GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGTERM, lambda signal: mainloop.quit(), None)
 
     # setup bluetooth configuration
-    setup_bt()
+    agent = setup_bt()
 
     # Run
-    mainloop.run()
-
-if __name__ == '__main__':
     try:
-        run()
+        mainloop.run()
     except KeyboardInterrupt:
         print('KeyboardInterrupt')
+        agent.shutdown()
+
+if __name__ == '__main__':
+    run()

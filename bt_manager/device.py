@@ -100,8 +100,8 @@ class BTDevice(BTGenericDevice):
         when a device node has been removed.
     """
 
-    def __init__(self, *args, **kwargs):
-        BTGenericDevice.__init__(self, addr='org.bluez.Device',
+    def __init__(self, *args, addr='org.bluez.Device', **kwargs):
+        BTGenericDevice.__init__(self, addr=addr,
                                  *args, **kwargs)
         self._register_signal_name(BTDevice.SIGNAL_DISCONNECT_REQUESTED)
         self._register_signal_name(BTDevice.SIGNAL_NODE_CREATED)
