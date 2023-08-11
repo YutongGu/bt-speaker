@@ -162,18 +162,18 @@ def setup_bt():
     def startup():
         command = config.get('bt_speaker', 'startup_command')
         if not command: return
-        subprocess.Popen(command, shell=True).communicate()
+        subprocess.Popen(command, shell=True, env=os.environ).communicate()
 
     def connect():
         command = config.get('bt_speaker', 'connect_command')
         if not command: return
-        subprocess.Popen(command, shell=True).communicate()
+        subprocess.Popen(command, shell=True, env=os.environ).communicate()
 
     def disconnect():
         sink.close_transport()
         command = config.get('bt_speaker', 'disconnect_command')
         if not command: return
-        subprocess.Popen(command, shell=True).communicate()
+        subprocess.Popen(command, shell=True, env=os.environ).communicate()
 
     def track(data):
         command = config.get('bt_speaker', 'track_command')
@@ -185,7 +185,7 @@ def setup_bt():
         # dirty hack to prevent unnecessary double execution
         if str(env) == track.last: return
         track.last = str(env)
-        subprocess.Popen(command, shell=True, env=env).communicate()
+        subprocess.Popen(command, shell=True, env=env.update(os.environ)).communicate()
 
     track.last = None
 
