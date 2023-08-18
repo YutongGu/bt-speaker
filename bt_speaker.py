@@ -98,22 +98,24 @@ class AutoAcceptSingleAudioAgent(BTAgent):
         self.connect_callback = connect_callback
         self.disconnect_callback = disconnect_callback
         self.track_callback = track_callback
-        self.update_discoverable()
+        self.update_discoverable(False)
 
     def shutdown(self):
         if self.connected:
             print("Gracefully shutting down bluetooth connection")
             BTDevice(addr='org.bluez.Device1', dev_path=self.connected).disconnect()
 
-    def update_discoverable(self):
+    def update_discoverable(self, enable):
         if not config.getboolean('bluez', 'discoverable'):
             return
 
-        if bool(self.connected):
+        if not enable:
             print("Hiding adapter from all devices.")
+            self.adapter.set_property('Pairable', False)
             self.adapter.set_property('Discoverable', False)
         else:
             print("Showing adapter to all devices.")
+            self.adapter.set_property('Pairable', True)
             self.adapter.set_property('Discoverable', True)
 
     def auto_accept_one(self, method, device, uuid):
@@ -149,13 +151,12 @@ class AutoAcceptSingleAudioAgent(BTAgent):
         if not self.connected and bool(properties['Connected']):
             print("Device connected. device=%s" % device)
             self.connected = device
-            self.update_discoverable()
+            self.update_discoverable(False)
             self.connect_callback()
 
         elif self.connected and not bool(properties['Connected']):
             print("Device disconnected. device=%s" % device)
             self.connected = None
-            self.update_discoverable()
             self.disconnect_callback()
 
 def setup_bt():
@@ -215,6 +216,11 @@ def run():
 
     # setup bluetooth configuration
     agent = setup_bt()
+
+    # catch SIGUSR1 to enable discovery and pairing
+    GLib.unix_signal_add(GLib.PRIORITY_MEDIUM, signal.SIGUSR1, lambda _: agent.update_discoverable(True), None)
+    # catch SIGUSR2 to disable discovery and pairing
+    GLib.unix_signal_add(GLib.PRIORITY_MEDIUM, signal.SIGUSR1, lambda _: agent.update_discoverable(False), None)
 
     # Run
     try:
